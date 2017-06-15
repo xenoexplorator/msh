@@ -7,7 +7,7 @@ module Msh.Core
    ) where
 
 import Control.Monad.Except
-import Control.Monad.State
+import Control.Monad.Reader
 
 -- msh execution context
 data Context =
@@ -19,7 +19,7 @@ initialContext =
    Context "~/.profile"
 
 -- msh monad stack
-type MshAction = ExceptT String (StateT Context IO)
+type MshAction m = ExceptT String (ReaderT Context m)
 
-runMsh :: MshAction a -> Context -> IO (Either String a, Context)
-runMsh = runStateT . runExceptT
+runMsh :: MshAction m a -> Context -> m (Either String a)
+runMsh = runReaderT . runExceptT

@@ -4,11 +4,11 @@ import Msh.Core
 import Msh.Options
 
 main :: IO ()
-main = parseContext >>= runMsh shell >>= uncurry finalize
+main = parseContext >>= runMsh shell >>= finalize
 
-shell :: MshAction ()
+shell :: MshAction IO ()
 shell = throwError "not implemented"
 
-finalize :: Either String () -> Context -> IO ()
-finalize (Left error) _ = putStrLn $ "Error: " ++ error
-finalize _ _ = return ()
+finalize :: Either String () -> IO ()
+finalize (Left error) = putStrLn $ "Error: " ++ error
+finalize _ = return ()
