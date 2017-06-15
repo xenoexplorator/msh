@@ -1,0 +1,20 @@
+module Msh.Options
+   ( parseContext
+   ) where
+
+import Data.Semigroup((<>))
+import Msh.Core
+import Options.Applicative
+
+context :: Parser Context
+context = Context
+   <$> strOption
+      ( long "profile"
+      <> short 'P'
+      <> value "~/.profile"
+      <> help "Location of the profile to be loaded")
+
+parseContext :: IO Context
+parseContext = execParser $ info (helper <*> context)
+   ( fullDesc
+   <> progDesc "msh, a monadic shell")
