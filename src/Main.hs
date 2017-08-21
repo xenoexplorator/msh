@@ -1,14 +1,14 @@
 module Main where
 
 import Msh.Core
+import Msh.Lang
 import Msh.Options
 
 main :: IO ()
-main = parseContext >>= runMsh shell >>= finalize
+main = parseContext >>= shellLoop
 
-shell :: MshAction IO ()
-shell = throwError "not implemented"
-
-finalize :: Either String () -> IO ()
-finalize (Left error) = putStrLn $ "Error: " ++ error
-finalize _ = return ()
+shellLoop :: Context -> IO ()
+shellLoop context = do
+   runPrompt context
+   runMsh echo context
+   shellLoop context
