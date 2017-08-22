@@ -12,12 +12,24 @@ cabal-version:       >=1.10
 
 executable msh
   main-is:             Main.hs
-  other-modules:
-  other-extensions:
   build-depends:       base == 4.9.*,
                        directory >= 1.3,
                        mtl == 2.2.1.*,
                        optparse-applicative >= 0.14
+  ghc-options:         -Wall
   hs-source-dirs:      src
   default-language:    Haskell2010
-  
+
+test-suite unit
+  type:                exitcode-stdio-1.0
+  main-is:             UnitTests.hs
+  build-depends:       base == 4.9.*,
+                       directory >= 1.3,
+                       mtl == 2.2.1.*,
+                       optparse-applicative >= 0.14
+  ghc-options:         -Wall
+  hs-source-dirs:      tst
+  default-language:    Haskell2010
+  build-depends:       test-framework,
+                       test-framework-hunit,
+                       HUnit
