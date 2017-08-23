@@ -10,5 +10,10 @@ main = parseContext >>= shellLoop
 shellLoop :: Context -> IO ()
 shellLoop context = do
    runPrompt context
-   runMsh echo context
+   result <- getLine >>= (runMsh context . runCommand)
+   output result
    shellLoop context
+
+output :: Either String () -> IO ()
+output (Left err) = putStrLn err
+output _ = pure ()

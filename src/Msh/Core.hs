@@ -33,5 +33,5 @@ class MshIO m where
 -- msh monad stack
 type MshAction m = ExceptT String (ReaderT Context m)
 
-runMsh :: MshAction m a -> Context -> m (Either String a)
-runMsh = runReaderT . runExceptT
+runMsh :: Context -> MshAction m a -> m (Either String a)
+runMsh = flip $ runReaderT . runExceptT
