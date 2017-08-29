@@ -7,7 +7,7 @@ module Msh.Core
      Context(..), MshAction
    , initialContext, runMsh
      -- Re-exported functions related to the monad stack
-   , lift, throwError
+   , asks, lift, throwError
    ) where
 
 import Control.Monad.Except

@@ -17,7 +17,11 @@ context = Context
       <> short 'P'
       <> value "~/.profile"
       <> help "Location of the profile to be loaded")
-   <*> pure "$"
+   <*> strOption
+      ( long "prompt"
+      <> short 'p'
+      <> value "$"
+      <> help "Main prompt string")
 
 parseContext :: IO Context
 parseContext = execParser $ info (helper <*> context)

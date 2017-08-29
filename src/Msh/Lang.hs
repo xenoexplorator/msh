@@ -3,17 +3,21 @@
  -}
 
 module Msh.Lang
-   ( runPrompt, runCommand
+   ( getPrompt, runCommand
    ) where
 
 import Data.List (isPrefixOf)
 import Msh.Core
 import Msh.IO
-import System.IO (hFlush, stdout)
 
-runPrompt :: Context -> IO ()
-runPrompt context =
-   putStr (prompt context) >> putStr " " >> hFlush stdout
+getPrompt :: DirectoryIO m => MshAction m String
+getPrompt = asks prompt >>= expandPrompt
+
+expandPrompt :: DirectoryIO m => String -> MshAction m String
+expandPrompt pr
+  | null pr = pure " " -- implicit space after prompt for readability
+  | "#pwd" `isPrefixOf` pr = (++) <$> getDirectory <*> (expandPrompt $ drop 4 pr)
+  | otherwise = let (p:ps) = pr in (p:) <$> expandPrompt ps
 
 runCommand :: (ConsoleIO m, DirectoryIO m, SystemIO m) => String -> MshAction m ()
 runCommand cmd
