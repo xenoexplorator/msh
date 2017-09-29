@@ -21,6 +21,7 @@ expandPrompt pr
 
 runCommand :: (ConsoleIO m, DirectoryIO m, SystemIO m) => String -> MshAction m ()
 runCommand cmd
+  | null cmd = pure ()
   | "exit" == cmd = exitOK
   | "pwd" == cmd = getDirectory >>= writeLn
   | "cd " `isPrefixOf` cmd = setDirectory $ drop 3 cmd
