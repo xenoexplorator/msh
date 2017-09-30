@@ -1,5 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
-import qualified Control.Monad.State as ST
+import Mocks.IO
 import Msh.Core
 import Msh.IO
 import Msh.Lang
@@ -10,18 +9,21 @@ import Test.HUnit
 main :: IO ()
 main = defaultMainWithOpts
    [ promptExpansionTests
+   , builtinCommandsTests
    ] $ mempty { ropt_color_mode = Just ColorAlways }
 
 promptExpansionTests = testGroup "Prompt expansion"
-   [ testPromptExpand "expand current directory" "#pwd" "testdir "
-   , testPromptExpand "bare prompt does not expand" "$" "$ "
+   [ testCase "expand current directory" $ Right "testdir " @=? evalPrompt "#pwd"
+   , testCase "bare prompt does not expand" $ Right "$ " @=? evalPrompt "$"
+   , testCase "expansion occurs inside the prompt string" $ Right "(testdir) " @=? evalPrompt "(#pwd)"
    ]
 
-testPromptExpand :: String -> String -> String -> Test.Framework.Test
-testPromptExpand msg prompt expected = testCase msg $ assertEqual "" expected expanded
-   where (Right expanded) = ST.evalState (runMsh (Context "" prompt) getPrompt) (Directory "testdir")
+evalPrompt :: String -> Either String String
+evalPrompt p = (snd :: (String, a) -> a) $ runMsh (Context "" p) getPrompt
 
-data Directory = Directory { current :: String }
-instance DirectoryIO (ST.State Directory) where
-   getDirectory = ST.gets current
-   setDirectory = ST.put . Directory
+builtinCommandsTests = testGroup "Built-in commands"
+   [ testCase "execute exit command" $ "exitOK" @=? execMock (runCommand "exit")
+   , testCase "execute pwd command" $ "testdir\n" @=? execMock (runCommand "pwd")
+   , testCase "execute cd command" $ "test" @=? execMock (runCommand "cd test")
+   , testCase "execute echo command" $ "test\n" @=? execMock (runCommand "echo test")
+   ]
