@@ -3,6 +3,7 @@
  -}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Msh.IO
    ( ConsoleIO(..)
@@ -10,6 +11,7 @@ module Msh.IO
    , SystemIO(..)
    ) where
 
+import Control.Monad.Trans
 import Msh.Core
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Exit (exitSuccess)
@@ -24,10 +26,10 @@ instance ConsoleIO IO where
    write = putStr
    writeLn = putStrLn
 
-instance ConsoleIO m => ConsoleIO (MshAction m) where
-   readLine = lift . lift $ readLine
-   write = lift . lift . write
-   writeLn = lift . lift . writeLn
+instance (ConsoleIO m, MonadTrans t, Monad (t m)) => ConsoleIO (t m) where
+   readLine = lift readLine
+   write = lift . write
+   writeLn = lift . writeLn
 
 class Monad m => DirectoryIO m where
    getDirectory :: m FilePath
@@ -37,9 +39,9 @@ instance DirectoryIO IO where
    getDirectory = getCurrentDirectory
    setDirectory = setCurrentDirectory
 
-instance DirectoryIO m => DirectoryIO (MshAction m) where
-   getDirectory = lift . lift $ getDirectory
-   setDirectory = lift . lift . setDirectory
+instance (DirectoryIO m, MonadTrans t, Monad (t m)) => DirectoryIO (t m) where
+   getDirectory = lift getDirectory
+   setDirectory = lift . setDirectory
 
 class Monad m => SystemIO m where
    exitOK :: m a
@@ -47,5 +49,5 @@ class Monad m => SystemIO m where
 instance SystemIO IO where
    exitOK = exitSuccess
 
-instance SystemIO m => SystemIO (MshAction m) where
-   exitOK = lift . lift $ exitOK
+instance (SystemIO m, MonadTrans t, Monad (t m)) => SystemIO (t m) where
+   exitOK = lift exitOK
