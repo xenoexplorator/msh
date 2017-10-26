@@ -17,4 +17,4 @@ instance SystemIO ((,) String) where
    exitOK = ("exitOK", undefined)
 
 execMock :: MshAction ((,) String) a -> String
-execMock = fst . (runMsh $ Context "" "")
+execMock = fst . (runMsh (Context "") (Settings ""))

@@ -12,7 +12,6 @@ module Msh.IO
    ) where
 
 import Control.Monad.Trans
-import Msh.Core
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Exit (exitSuccess)
 

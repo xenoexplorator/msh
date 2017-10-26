@@ -4,14 +4,14 @@ import Msh.Core
 import Msh.IO
 import Msh.Lang
 import Msh.Options
-import System.Console.Haskeline
+import System.Console.Haskeline hiding (Settings)
 
 main :: IO ()
 main = parseContext >>= shellLoop
 
 shellLoop :: Context -> IO ()
 shellLoop context = do
-   (runMsh context $ readInput >>= runCommand) >>= output
+   (runMsh context (Settings "$") $ readInput >>= runCommand) >>= output . fst
    shellLoop context
 
 output :: Either String () -> IO ()
@@ -23,6 +23,6 @@ readInput = do
    promptString <- getPrompt
    (Just result) <- runMshInput $ getInputLine promptString
    pure result
-   where runMshInput = lift . lift . runInputTWithPrefs mshPrefs mshSettings
+   where runMshInput = lift . lift . lift . runInputTWithPrefs mshPrefs mshSettings
          mshPrefs = defaultPrefs -- do not read .haskeline pref file
          mshSettings = defaultSettings { historyFile = Just "./.msh_history" }

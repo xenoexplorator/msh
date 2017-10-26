@@ -11,7 +11,7 @@ import Msh.Core
 import Msh.IO
 
 getPrompt :: DirectoryIO m => MshAction m String
-getPrompt = asks prompt >>= expandPrompt
+getPrompt = gets prompt >>= expandPrompt
 
 expandPrompt :: DirectoryIO m => String -> MshAction m String
 expandPrompt pr

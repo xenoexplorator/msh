@@ -19,7 +19,7 @@ promptExpansionTests = testGroup "Prompt expansion"
    ]
 
 evalPrompt :: String -> Either String String
-evalPrompt p = (snd :: (String, a) -> a) $ runMsh (Context "" p) getPrompt
+evalPrompt p = (fst . snd :: (String, (a,b)) -> a) $ runMsh (Context "") (Settings p) getPrompt
 
 builtinCommandsTests = testGroup "Built-in commands"
    [ testCase "execute exit command" $ "exitOK" @=? execMock (runCommand "exit")
