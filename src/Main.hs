@@ -7,12 +7,13 @@ import Msh.Options
 import System.Console.Haskeline hiding (Settings)
 
 main :: IO ()
-main = parseContext >>= shellLoop
+main = parseContext >>= flip shellLoop (Settings "$")
 
-shellLoop :: Context -> IO ()
-shellLoop context = do
-   (runMsh context (Settings "$") $ readInput >>= runCommand) >>= output . fst
-   shellLoop context
+shellLoop :: Context -> Settings -> IO ()
+shellLoop context settings = do
+   (result, settings') <- runMsh context settings $ readInput >>= runCommand
+   output result
+   shellLoop context settings'
 
 output :: Either String () -> IO ()
 output (Left err) = writeLn err

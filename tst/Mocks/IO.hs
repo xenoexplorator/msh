@@ -16,5 +16,11 @@ instance DirectoryIO ((,) String) where
 instance SystemIO ((,) String) where
    exitOK = ("exitOK", undefined)
 
+runMock :: MshAction ((,) String) a -> (String, (Either String a, Settings))
+runMock = runMsh (Context "") (Settings "")
+
 execMock :: MshAction ((,) String) a -> String
-execMock = fst . (runMsh (Context "") (Settings ""))
+execMock = fst . runMock
+
+evalMock :: MshAction ((,) String) a -> (Either String a, Settings)
+evalMock = snd . runMock

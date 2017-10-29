@@ -3,3 +3,4 @@ dist/*
 *.hi
 .msh_history
 cabal.sandbox.config
+*.vis

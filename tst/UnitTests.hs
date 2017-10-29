@@ -26,4 +26,8 @@ builtinCommandsTests = testGroup "Built-in commands"
    , testCase "execute pwd command" $ "testdir\n" @=? execMock (runCommand "pwd")
    , testCase "execute cd command" $ "test" @=? execMock (runCommand "cd test")
    , testCase "execute echo command" $ "test\n" @=? execMock (runCommand "echo test")
+   , testCase "execute prompt= command" $ "test" @=? evalMockSettings (runCommand "prompt=test")
    ]
+
+evalMockSettings = extract . evalMock
+   where extract (_, Settings s) = s
