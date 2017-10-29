@@ -4,23 +4,28 @@ module Mocks.IO where
 import Msh.Core
 import Msh.IO
 
-instance ConsoleIO ((,) String) where
-   readLine = ("", "testinput")
-   write = flip (,) ()
-   writeLn = flip (,) () . (++ "\n")
+data Mock = ReadLine | Write String
+          | GetDir | SetDir String
+          | Exit
+          deriving (Eq, Show)
 
-instance DirectoryIO ((,) String) where
-   getDirectory = ("", "testdir")
-   setDirectory = flip (,) ()
+instance ConsoleIO ((,) [Mock]) where
+   readLine = ([ReadLine], "")
+   write s = ([Write s], ())
+   writeLn s = write $ s ++ "\n"
 
-instance SystemIO ((,) String) where
-   exitOK = ("exitOK", undefined)
+instance DirectoryIO ((,) [Mock]) where
+   getDirectory = ([GetDir], "testdir")
+   setDirectory s = ([SetDir s], ())
 
-runMock :: MshAction ((,) String) a -> (String, (Either String a, Settings))
+instance SystemIO ((,) [Mock]) where
+   exitOK = ([Exit], undefined)
+
+runMock :: MshAction ((,) [Mock]) a -> ([Mock], (Either String a, Settings))
 runMock = runMsh (Context "") (Settings "")
 
-execMock :: MshAction ((,) String) a -> String
+execMock :: MshAction ((,) [Mock]) a -> [Mock]
 execMock = fst . runMock
 
-evalMock :: MshAction ((,) String) a -> (Either String a, Settings)
+evalMock :: MshAction ((,) [Mock]) a -> (Either String a, Settings)
 evalMock = snd . runMock
