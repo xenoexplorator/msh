@@ -27,4 +27,4 @@ runCommand cmd
   | "cd " `isPrefixOf` cmd = setDirectory $ drop 3 cmd
   | "echo " `isPrefixOf` cmd = writeLn $ drop 5 cmd
   | "prompt=" `isPrefixOf` cmd = put . Settings $ drop 7 cmd
-  | otherwise = throwError $ "Unknown command : " ++ cmd
+  | otherwise = let (prog:args) = words cmd in call prog args

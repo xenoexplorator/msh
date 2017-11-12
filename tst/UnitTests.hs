@@ -27,6 +27,7 @@ builtinCommandsTests = testGroup "Built-in commands"
    , testCase "execute cd command" $ [SetDir "test"] @=? execMock (runCommand "cd test")
    , testCase "execute echo command" $ [Write "test\n"] @=? execMock (runCommand "echo test")
    , testCase "execute prompt= command" $ "test" @=? evalMockSettings (runCommand "prompt=test")
+   , testCase "run external programs" $ [Exec "test" ["a","b"]] @=? execMock (runCommand "test a b")
    ]
 
 evalMockSettings = extract . evalMock

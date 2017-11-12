@@ -6,7 +6,7 @@ import Msh.IO
 
 data Mock = ReadLine | Write String
           | GetDir | SetDir String
-          | Exit
+          | Exit | Exec String [String]
           deriving (Eq, Show)
 
 instance ConsoleIO ((,) [Mock]) where
@@ -20,6 +20,7 @@ instance DirectoryIO ((,) [Mock]) where
 
 instance SystemIO ((,) [Mock]) where
    exitOK = ([Exit], undefined)
+   call prog args = ([Exec prog args], ())
 
 runMock :: MshAction ((,) [Mock]) a -> ([Mock], (Either String a, Settings))
 runMock = runMsh (Context "") (Settings "")

@@ -14,6 +14,7 @@ module Msh.IO
 import Control.Monad.Trans
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Exit (exitSuccess)
+import System.Process (callProcess)
 
 class Monad m => ConsoleIO m where
    readLine :: m String
@@ -44,9 +45,12 @@ instance (DirectoryIO m, MonadTrans t, Monad (t m)) => DirectoryIO (t m) where
 
 class Monad m => SystemIO m where
    exitOK :: m a
+   call :: FilePath -> [String] -> m ()
 
 instance SystemIO IO where
    exitOK = exitSuccess
+   call = callProcess
 
 instance (SystemIO m, MonadTrans t, Monad (t m)) => SystemIO (t m) where
    exitOK = lift exitOK
+   call = (lift .) . call

@@ -16,7 +16,8 @@ executable msh
                        directory >= 1.3,
                        haskeline >= 0.7,
                        mtl == 2.2.1.*,
-                       optparse-applicative >= 0.14
+                       optparse-applicative >= 0.14,
+                       process >= 1.6
   ghc-options:         -Wall
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -28,7 +29,8 @@ test-suite unit
                        directory >= 1.3,
                        haskeline >= 0.7,
                        mtl == 2.2.1.*,
-                       optparse-applicative >= 0.14
+                       optparse-applicative >= 0.14,
+                       process >= 1.6
   hs-source-dirs:      tst, src
   default-language:    Haskell2010
   build-depends:       test-framework,
