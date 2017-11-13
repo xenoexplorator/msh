@@ -7,17 +7,17 @@ import Msh.Options
 import System.Console.Haskeline hiding (Settings)
 
 main :: IO ()
-main = parseContext >>= flip shellLoop (Settings "$")
+main = parseContext >>= shellLoop (Settings "$")
 
-shellLoop :: Context -> Settings -> IO ()
-shellLoop context settings = do
-   (result, settings') <- runMsh context settings $ readInput >>= runCommand
-   output result
-   shellLoop context settings'
+shellLoop :: Settings -> Context -> IO ()
+shellLoop settings context = runMsh context settings repl >>= output . fst
 
 output :: Either String () -> IO ()
 output (Left err) = writeLn err
 output _ = pure ()
+
+repl :: MshAction IO ()
+repl = readInput >>= runCommand >> repl
 
 readInput :: MshAction IO String
 readInput = do
@@ -27,3 +27,4 @@ readInput = do
    where runMshInput = lift . lift . lift . runInputTWithPrefs mshPrefs mshSettings
          mshPrefs = defaultPrefs -- do not read .haskeline pref file
          mshSettings = defaultSettings { historyFile = Just "./.msh_history" }
+
