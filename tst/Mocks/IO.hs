@@ -9,24 +9,24 @@ data Mock = ReadLine | Write String
           | Exit | Exec String [String]
           deriving (Eq, Show)
 
-instance ConsoleIO ((,) [Mock]) where
-   readLine = ([ReadLine], "")
-   write s = ([Write s], ())
+instance ConsoleIO (Action ((,) [Mock])) where
+   readLine = liftAction ([ReadLine], "")
+   write s = liftAction ([Write s], ())
    writeLn s = write $ s ++ "\n"
 
-instance DirectoryIO ((,) [Mock]) where
-   getDirectory = ([GetDir], "testdir")
-   setDirectory s = ([SetDir s], ())
+instance DirectoryIO (Action ((,) [Mock])) where
+   getDirectory = liftAction ([GetDir], "testdir")
+   setDirectory s = liftAction ([SetDir s], ())
 
-instance SystemIO ((,) [Mock]) where
-   exitOK = ([Exit], undefined)
-   call prog args = ([Exec prog args], ())
+instance SystemIO (Action ((,) [Mock])) where
+   exitOK = liftAction ([Exit], undefined)
+   call prog args = liftAction ([Exec prog args], ())
 
-runMock :: MshAction ((,) [Mock]) a -> ([Mock], (Either String a, Settings))
-runMock = runMsh (Context "") (Settings "")
+runMock :: Action ((,) [Mock]) a -> ([Mock], (Either String a, Settings))
+runMock action = runAction action (Settings "") (Context "")
 
-execMock :: MshAction ((,) [Mock]) a -> [Mock]
+execMock :: Action ((,) [Mock]) a -> [Mock]
 execMock = fst . runMock
 
-evalMock :: MshAction ((,) [Mock]) a -> (Either String a, Settings)
+evalMock :: Action ((,) [Mock]) a -> (Either String a, Settings)
 evalMock = snd . runMock

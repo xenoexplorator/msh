@@ -7,24 +7,26 @@ import Msh.Options
 import System.Console.Haskeline hiding (Settings)
 
 main :: IO ()
-main = parseContext >>= shellLoop (Settings "$")
+main = parseContext >>= runAction shell (Settings "$") >> return ()
 
-shellLoop :: Settings -> Context -> IO ()
-shellLoop settings context = runMsh context settings repl >>= output . fst
+shell :: Action IO ()
+shell = do
+   cmd <- input
+   printResult $ runCommand cmd
+   shell
 
-output :: Either String () -> IO ()
-output (Left err) = writeLn err
-output _ = pure ()
+input :: Action IO String
+input = do
+   result <- getPrompt >>= runInput . getInputLine
+   maybe exitOK return result
 
-repl :: MshAction IO ()
-repl = readInput >>= runCommand >> repl
+runInput :: InputT IO a -> Action IO a
+runInput = liftAction . runInputTWithPrefs prefs settings
+   where prefs = defaultPrefs -- do not read .haskeline pref file
+         settings = defaultSettings { historyFile = Just "./.msh_history" }
 
-readInput :: MshAction IO String
-readInput = do
-   promptString <- getPrompt
-   (Just result) <- runMshInput $ getInputLine promptString
-   pure result
-   where runMshInput = lift . lift . lift . runInputTWithPrefs mshPrefs mshSettings
-         mshPrefs = defaultPrefs -- do not read .haskeline pref file
-         mshSettings = defaultSettings { historyFile = Just "./.msh_history" }
-
+printResult :: Action IO () -> Action IO ()
+printResult action = mkAction $ \settings context -> do
+  (result, s') <- runAction action settings context
+  either putStrLn (const $ pure ()) result
+  return (Right (), s')

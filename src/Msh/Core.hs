@@ -1,13 +1,14 @@
 {-
  - Provides common types and functions to other components
  -}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Msh.Core
    (
-     Context(..), Settings(..), MshAction
-   , initialContext, runMsh
+     Context(..), Settings(..), Action(..)
+   , initialContext, runAction, mkAction
      -- Re-exported functions related to the monad stack
-   , asks, gets, lift, put, throwError
+   , asks, gets, lift, put
    ) where
 
 import Control.Monad.Except
@@ -34,7 +35,11 @@ initialContext = Context "~/.profile"
  - Monadic representation of a shell action
  -}
 
-type MshAction m = ExceptT String (StateT Settings (ReaderT Context m))
+newtype Action m a = Action (ExceptT String (StateT Settings (ReaderT Context m)) a)
+   deriving (Functor, Applicative, Monad, MonadState Settings)
 
-runMsh :: Context -> Settings -> MshAction m a -> m (Either String a, Settings)
-runMsh context settings = flip runReaderT context . flip runStateT settings . runExceptT
+runAction :: Action m a -> Settings -> Context -> m (Either String a, Settings)
+runAction (Action act) = (runReaderT .) $ runStateT . runExceptT $ act
+
+mkAction :: (Settings -> Context -> m (Either String a, Settings)) -> Action m a
+mkAction = Action . ExceptT . StateT . (ReaderT .)
